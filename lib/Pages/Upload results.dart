@@ -14,11 +14,13 @@ class _UploadPageState extends State<UploadPage> {
   String dropdownValue = 'Zero';
   String subject = '';
   String standard = '';
+  String amount = 'Zero';
+  String grade = 'Zero';
   late File jsonFile;
   List<dynamic> upload = [];
 
   @override
-  void initSate() {
+  void initState() {
     super.initState();
     _initFile();
   }
@@ -32,9 +34,9 @@ class _UploadPageState extends State<UploadPage> {
     }
   }
 
-  Future<void> _addUpload(String subject, String standard) async {
-    upload.add({'subject': subject, 'standard': standard});
-    await jsonFile.writeAsString(json.encode(upload)); //sorts the file 
+  Future<void> _addUpload(String subject, String standard, String amount) async {
+    upload.add({'subject': subject, 'standard': standard, 'amount': amount});
+    await jsonFile.writeAsString(json.encode(upload));
   }
 
   @override
@@ -42,65 +44,99 @@ class _UploadPageState extends State<UploadPage> {
     return MaterialApp(
       home: Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(title: const Text('app')),
-        body: Center(
+        appBar: AppBar(title: const Text('Upload Page')),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Container(
-                child: TextField(
-                  onChanged:
-                      (value) =>
-                          subject =
-                              value, //When changed it will add it to the variable
-                  decoration: const InputDecoration(
-                    label: Text('Subject (spell in full)'),
-                  ),
+              const Text(
+                'Enter Details',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+
+              /// Subject Input
+              TextField(
+                onChanged: (value) => subject = value,
+                decoration: const InputDecoration(
+                  labelText: 'Subject (spell in full)',
+                  border: OutlineInputBorder(),
                 ),
               ),
-              Container(
-                child: TextField(
-                  onChanged: (value) => standard = value,
-                  maxLength: 10,
-                  decoration: const InputDecoration(
-                    label: Text('Standard Number'),
-                  ),
+              const SizedBox(height: 16),
+
+              // Standard Input
+              TextField(
+                onChanged: (value) => standard = value,
+                maxLength: 10,
+                decoration: const InputDecoration(
+                  labelText: 'Standard Number',
+                  border: OutlineInputBorder(),
                 ),
               ),
-              Container(
-                child: DropdownButton<String>(
-                  value: dropdownValue,
-                  icon: const Icon(Icons.arrow_downward),
-                  style: const TextStyle(color: Colors.black54),
-                  underline: Container(height: 2, color: Colors.blue),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      dropdownValue = newValue!;
-                    });
-                  },
-                  items: const [
-                    DropdownMenuItem<String>(
-                      value: 'Zero',
-                      child: Text('How many credits?'),
-                    ),
-                    DropdownMenuItem<String>(value: 'One', child: Text('One')),
-                    DropdownMenuItem<String>(value: 'Two', child: Text('Two')),
-                    DropdownMenuItem<String>(
-                      value: 'Three',
-                      child: Text('Three'),
-                    ),
-                  ],
+              const SizedBox(height: 16),
+
+              // Amount Dropdown
+              DropdownButtonFormField<String>(
+                value: amount,
+                decoration: const InputDecoration(
+                  labelText: 'How many credits?',
+                  border: OutlineInputBorder(),
                 ),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    amount = newValue!;
+                  });
+                },
+                items: const [
+                  DropdownMenuItem(value: 'Zero', child: Text('Zero')),
+                  DropdownMenuItem(value: 'One', child: Text('One')),
+                  DropdownMenuItem(value: 'Two', child: Text('Two')),
+                  DropdownMenuItem(value: 'Three', child: Text('Three')),
+                ],
               ),
-              Container(
-                child: ElevatedButton(
+              const SizedBox(height: 16),
+
+              /// Grade Dropdown
+              DropdownButtonFormField<String>(
+                value: grade,
+                decoration: const InputDecoration(
+                  labelText: 'What type of credits?',
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    grade = newValue!;
+                  });
+                },
+                items: const [
+                  DropdownMenuItem(value: 'Zero', child: Text('Select Type')),
+                  DropdownMenuItem(value: 'E', child: Text('E')),
+                  DropdownMenuItem(value: 'M', child: Text('M')),
+                  DropdownMenuItem(value: 'A', child: Text('A')),
+                  DropdownMenuItem(value: 'N', child: Text('N')),
+                ],
+              ),
+              const SizedBox(height: 24),
+
+              // Save Button
+              Center(
+                child: ElevatedButton.icon(
                   onPressed: () {
                     if (subject.isNotEmpty && standard.isNotEmpty) {
-                      _addUpload(subject, standard);
+                      _addUpload(subject, standard, amount);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Upload saved')),
+                      );
                     }
                   },
-                  child: const Text('save'),
+                  icon: const Icon(Icons.save),
+                  label: const Text('Save'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 15),
+                  ),
                 ),
               ),
             ],
