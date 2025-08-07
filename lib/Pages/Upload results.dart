@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter/services.dart';
 
 class UploadPage extends StatefulWidget {
   const UploadPage({super.key});
@@ -10,12 +11,25 @@ class UploadPage extends StatefulWidget {
   State<UploadPage> createState() => _UploadPageState();
 }
 
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    return TextEditingValue(
+      text: newValue.text.toUpperCase(),
+      selection: newValue.selection,
+    );
+  }
+}
+
 class _UploadPageState extends State<UploadPage> {
-  String dropdownValue = 'Zero';
+  String dropdownValue = '0';
   String subject = '';
   String standard = '';
-  String amount = 'Zero';
-  String grade = 'Zero';
+  String amount = '0';
+  String grade = '0';
   late File jsonFile;
   List<dynamic> upload = [];
 
@@ -30,12 +44,28 @@ class _UploadPageState extends State<UploadPage> {
     jsonFile = File('${dir.path}/upload.json');
 
     if (!await jsonFile.exists()) {
+      // If the file doesn't exist, it will create it with an empty list
       await jsonFile.writeAsString(json.encode([]));
+      upload = [];
+    } else {
+      // Load existing data into the `upload` list
+      final content = await jsonFile.readAsString();
+      upload = json.decode(content);
     }
   }
 
-  Future<void> _addUpload(String subject, String standard, String amount) async {
-    upload.add({'subject': subject, 'standard': standard, 'amount': amount});
+  Future<void> _addUpload(
+    String subject,
+    String standard,
+    String amount,
+    String grade,
+  ) async {
+    upload.add({
+      'subject': subject,
+      'standard': standard,
+      'amount': amount,
+      'grade': grade,
+    });
     await jsonFile.writeAsString(json.encode(upload));
   }
 
@@ -56,15 +86,16 @@ class _UploadPageState extends State<UploadPage> {
               ),
               const SizedBox(height: 20),
 
-              /// Subject Input
+              // Subject Input
               TextField(
-                onChanged: (value) => subject = value,
+                onChanged: (value) => subject = value.toUpperCase(),
+                textCapitalization: TextCapitalization.characters,
+                inputFormatters: [UpperCaseTextFormatter()],
                 decoration: const InputDecoration(
                   labelText: 'Subject (spell in full)',
                   border: OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: 16),
 
               // Standard Input
               TextField(
@@ -90,15 +121,18 @@ class _UploadPageState extends State<UploadPage> {
                   });
                 },
                 items: const [
-                  DropdownMenuItem(value: 'Zero', child: Text('Zero')),
-                  DropdownMenuItem(value: 'One', child: Text('One')),
-                  DropdownMenuItem(value: 'Two', child: Text('Two')),
-                  DropdownMenuItem(value: 'Three', child: Text('Three')),
+                  DropdownMenuItem(value: '0', child: Text('0')),
+                  DropdownMenuItem(value: '1', child: Text('1')),
+                  DropdownMenuItem(value: '2', child: Text('2')),
+                  DropdownMenuItem(value: '3', child: Text('3')),
+                  DropdownMenuItem(value: '4', child: Text('4')),
+                  DropdownMenuItem(value: '5', child: Text('5')),
+                  DropdownMenuItem(value: '6', child: Text('6')),
                 ],
               ),
               const SizedBox(height: 16),
 
-              /// Grade Dropdown
+              // Grade Dropdown
               DropdownButtonFormField<String>(
                 value: grade,
                 decoration: const InputDecoration(
@@ -111,7 +145,7 @@ class _UploadPageState extends State<UploadPage> {
                   });
                 },
                 items: const [
-                  DropdownMenuItem(value: 'Zero', child: Text('Select Type')),
+                  DropdownMenuItem(value: '0', child: Text('Select Type')),
                   DropdownMenuItem(value: 'E', child: Text('E')),
                   DropdownMenuItem(value: 'M', child: Text('M')),
                   DropdownMenuItem(value: 'A', child: Text('A')),
@@ -125,17 +159,34 @@ class _UploadPageState extends State<UploadPage> {
                 child: ElevatedButton.icon(
                   onPressed: () {
                     if (subject.isNotEmpty && standard.isNotEmpty) {
-                      _addUpload(subject, standard, amount);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Upload saved')),
+                      // Check for duplicate standard
+                      final alreadyExists = upload.any(
+                        (entry) => entry['standard'] == standard,
                       );
+
+                      if (alreadyExists) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'This standard number has already been added.',
+                            ),
+                          ),
+                        );
+                      } else {
+                        _addUpload(subject, standard, amount, grade);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Upload saved')),
+                        );
+                      }
                     }
                   },
                   icon: const Icon(Icons.save),
                   label: const Text('Save'),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 30, vertical: 15),
+                      horizontal: 30,
+                      vertical: 15,
+                    ),
                   ),
                 ),
               ),

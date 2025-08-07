@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_project/Pages/Qualifications.dart';
 import 'package:my_project/Pages/Home page (dashboard).dart';
 import 'package:my_project/Pages/Upload results.dart';
+
 //Imported all of the pages so it can call upon them
 
 class MainPage extends StatefulWidget {
