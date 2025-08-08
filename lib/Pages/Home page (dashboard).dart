@@ -24,22 +24,26 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
+    // Reads the Json file
     final String content = await file.readAsString();
     final List<dynamic> data = json.decode(content);
 
     Map<String, Map<String, int>> summary = {};
 
+    // Loops through each upload entry
     for (var item in data) {
       final subject = item['subject'] as String? ?? '';
       final grade = item['grade'] as String? ?? '0';
       final amountStr = item['amount'] as String? ?? '0';
 
+      // Skips if it is empty or equal to 0
       if (subject.isEmpty || grade == '0') continue;
 
       final int credits = int.tryParse(amountStr) ?? 0;
       if (credits == 0) continue;
 
       summary.putIfAbsent(subject, () => {'E': 0, 'M': 0, 'A': 0, 'N': 0});
+      // Adds the credit amount to the subject and grade
       if (summary[subject]!.containsKey(grade)) {
         summary[subject]![grade] = summary[subject]![grade]! + credits;
       }

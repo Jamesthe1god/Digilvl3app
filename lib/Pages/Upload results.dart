@@ -18,7 +18,7 @@ class UpperCaseTextFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     return TextEditingValue(
-      text: newValue.text.toUpperCase(),
+      text: newValue.text.toUpperCase(), // Needed to make the subject all uppercase so there are no duplicates
       selection: newValue.selection,
     );
   }
@@ -39,16 +39,17 @@ class _UploadPageState extends State<UploadPage> {
     _initFile();
   }
 
+  // Saves locally so I dont loose the information after resetting the page
   Future<void> _initFile() async {
     final dir = await getApplicationDocumentsDirectory();
     jsonFile = File('${dir.path}/upload.json');
 
     if (!await jsonFile.exists()) {
-      // If the file doesn't exist, it will create it with an empty list
+      // If the file doesn't exist it will create one
       await jsonFile.writeAsString(json.encode([]));
       upload = [];
     } else {
-      // Load existing data into the `upload` list
+      // Load existing data into the upload list
       final content = await jsonFile.readAsString();
       upload = json.decode(content);
     }
@@ -86,7 +87,7 @@ class _UploadPageState extends State<UploadPage> {
               ),
               const SizedBox(height: 20),
 
-              // Subject Input
+              // Subject input
               TextField(
                 onChanged: (value) => subject = value.toUpperCase(),
                 textCapitalization: TextCapitalization.characters,
@@ -97,7 +98,7 @@ class _UploadPageState extends State<UploadPage> {
                 ),
               ),
 
-              // Standard Input
+              // Standard input
               TextField(
                 onChanged: (value) => standard = value,
                 maxLength: 10,
@@ -108,7 +109,7 @@ class _UploadPageState extends State<UploadPage> {
               ),
               const SizedBox(height: 16),
 
-              // Amount Dropdown
+              // How many credits dropdown
               DropdownButtonFormField<String>(
                 value: amount,
                 decoration: const InputDecoration(
@@ -120,6 +121,7 @@ class _UploadPageState extends State<UploadPage> {
                     amount = newValue!;
                   });
                 },
+                // All of the values shown on the drop down menu
                 items: const [
                   DropdownMenuItem(value: '0', child: Text('0')),
                   DropdownMenuItem(value: '1', child: Text('1')),
@@ -132,7 +134,7 @@ class _UploadPageState extends State<UploadPage> {
               ),
               const SizedBox(height: 16),
 
-              // Grade Dropdown
+              // Grade dropdown
               DropdownButtonFormField<String>(
                 value: grade,
                 decoration: const InputDecoration(

@@ -28,7 +28,7 @@ class _MainPageState extends State<MainPage> {
       body: pages[currentpage],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentpage,
-        onTap: (value) {setState(() {      //When it is clicked it will change to which ever value you clicked
+        onTap: (value) {setState(() {      // When it is clicked it will change to which ever value you clicked
           currentpage = value;
         });},
         items: const [
